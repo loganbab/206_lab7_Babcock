@@ -15,6 +15,8 @@ library(GGally)
 library(broom)
 library(kableExtra)
 library(modelsummary)
+library(stargazer)
+
 
 
 ```
@@ -55,5 +57,82 @@ penguin_lm
 ```
 
 How would we interpret this?
-on average, we would expect a 1 mm increase in flippper length to be associated with a ` r penguin_lm$coef[2]` increase in body mass, if everything else is constant.
+on average, we would expect a 1 mm increase in flippper length to be associated with a 54.51 increase in body mass, if everything else is constant.
+
+```{r}
+summary(penguin_lm)
+
+```
+r squared analysis: ' 75% of the variance in bodymass can be expained by the variables in this model. 
+
+### Use broom functions tidy and glance
+
+use broom::tidy to get the coef summary in a dataframe
+use broom::glance to et the model summary in a dataframe
+
+```{r}
+penguins_lm_tidy <- tidy(penguin_lm)
+penguins_lm_glance <- glance(penguin_lm)
+
+# view tidy set
+penguins_lm_tidy
+
+```
+
+Using in line code to pull bill depth coeficient
+the bill depth coefficient: `r penguins_lm_tidy$estimate[3]`
+
+```{r}
+# view penguin glance table 
+penguins_lm_glance
+
+```
+## try abother model! 
+
+We have thought really hard, done a literature review, consulted experts, and decided that the three most critical variables to include in this model are 
+
+- flipper length
+- species
+- sex
+
+# create a mutiple linear regression model using these three predictor variables for body mass
+```{r}
+# mutiple variable linear model
+penguins_lm_2 <- lm(body_mass_g ~ flipper_length_mm + species + sex, data = penguins)
+
+# return coefficients
+penguins_lm_2
+```
+
+Adele species are the reference species, and female is the reference sex, becuase they do not show up in the coefficients output. 
+
+coefficient output written out:
+mass(g) = -365.82 = 20.02(flipper length) - 87.63(chinstrap) + 836.26(Gentoo) + 530.38(male)
+
+ make sure to reference the reference level in interpretation!!!! 
+  - "If all other conditions were the same, we would expect a gentoo penguin to be on average for the bodymass of a gentoo penguin to be 836.26 grams more than an adele penguin"
+
+## use broom::augment to see predicted values
+```{r}
+augment(penguins_lm_2)
+
+```
+## using plot to see residuals (model diagnostics)
+```{r}
+plot(penguins_lm_2)
+
+```
+-conceptual understanding and expertise allows me to resposible determine that penguin species, sex, and flipper length are reasonable predictor variables. 
+- diagnostis plots check out for normality of residuals, homscedasticity, and no worrisome outliers (<<< last one is not an assumption!)
+
+
+## Make output tabels
+```{r}
+modelsummary(penguins_lm_2)
+```
+Using stargazer:
+```{r, results = "asis"}
+stargazer(penguins_lm_2, type = "html")
+
+```
 
