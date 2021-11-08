@@ -1,0 +1,59 @@
+---
+title: "esm 206 lab 7"
+author: "Logan Babcock"
+date: "November 8, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+# attach packages
+library(tidyverse)
+library(palmerpenguins)
+library(GGally)
+library(broom)
+library(kableExtra)
+library(modelsummary)
+
+
+```
+
+## Intro to ggpairs
+Use GGaly::ggpairs() function to create a pairs plot
+```{r}
+ggpairs(penguins) # makes a big overview plot of everything compared against eachother
+
+
+```
+
+```{r}
+# makign a new dataset
+penguins %>%
+  select(species, bill_length_mm:body_mass_g) %>%  # selects species columns and all between the length and body mass 
+  ggpairs(aes(color = species))
+
+# exporing tha relationship more
+ggplot(data = penguins, aes(x = bill_depth_mm, y = body_mass_g, group = species)) +
+  geom_point(aes(color = species)) +
+  geom_smooth(method = "lm", aes(color = species))
+
+
+
+```
+
+## Multiple linear regression - penguins
+
+Use mutiple linear regression to try and understand the relationship between mutiple predictor variables and a single continuous outcome variable (body mass). 
+```{r}
+# model naming and creation
+
+penguin_lm <-lm(body_mass_g ~ flipper_length_mm + bill_depth_mm, data = penguins) # writing in function notation
+
+# return just the coefficients: 
+penguin_lm
+```
+
+How would we interpret this?
+on average, we would expect a 1 mm increase in flippper length to be associated with a ` r penguin_lm$coef[2]` increase in body mass, if everything else is constant.
+
